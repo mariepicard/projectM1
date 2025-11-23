@@ -4,7 +4,7 @@ set -euo pipefail
 archive="inputs/part_54/neisseria_gonorrhoeae__01.tar.xz"
 outdir="json_files"
 sketches="sketches"
-stat_file="presence_base10.csv"
+stat_file="presence_linear.csv"
 matrices="matrices"
 src="src"
 
@@ -22,7 +22,7 @@ if [ ! -d "$matrices" ]; then
 	mkdir "$matrices"
 fi
 
-for ((s=1;s<=10000;s=s*10)); do
+for ((s=1000;s<=10000;s=s+1000)); do
 	echo "Computing sketches for s = $s"
 
 	eval "$src/compute_sketches_from_archive.sh $extracted_archive $s" 2> /dev/null
