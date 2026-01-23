@@ -23,29 +23,17 @@ if [ ! -d "$matrices" ]; then
 	mkdir "$matrices"
 fi
 
-for ((s=1;s<=10000;s=s*10)); do
-	echo "Computing sketches for s = $s"
+s=1000
 
-	eval "$src/compute_sketches_from_archive.sh $extracted_archive $s" 2> /dev/null
-	mkdir -p "$outdir"
-	
-	echo "Extracting json files from sketches..."
+for ((S=1;S<=10000;S=S*10)); do
+	echo "Computing sketches for S = $S"
 
-	for f in "$sketches"/*; do
-		fname=$(basename "$f")
-		eval "mash info -d $f" > "$outdir/${fname}_$s.json"
-	done
+	eval "displayed_matrix/sub_matrix.sh $extracted_archive $S $s"
 	
-	echo "Done."
+	#echo "Computing presence/absence matrix..."
+	eval "displayed_matrix/plot_presence_absence_matrix.py json_files_sub/s${s}_S${S} 'no plot'"
 	
-	echo "Computing presence/absence matrix..."
-	
-	echo $(eval "$src/presence_matrix.py $outdir") >> "$stat_file"
-	
-	echo "Done."
-	
-	rm -rf "$sketches"
-	rm -rf "$outdir"
+	#echo "Done."
 done
 
 
