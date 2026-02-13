@@ -3,12 +3,14 @@
 
 #include <vector>
 #include <string>
+#include <sdsl/bit_vectors.hpp>
 
 class Union {
+    sdsl::bit_vector elias_fano_representation;
 
 public :
-    Union(std::vector<std::string> filenames); //build from different sketches
-    Union(std::string filename); //load from disk
+    Union(const std::vector<std::string>& filenames); //build from different sketches
+    // Union(std::string filename); //load from disk
 
     void dump(std::string filename);
 
