@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 #include "sketch_matrix.hpp"
 #include "union_hashes.hpp"
 

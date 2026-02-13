@@ -2,6 +2,7 @@
 #include "tools.hpp"
 
 void usage(){
+    std::cout << "";
     return;
 }
 

@@ -9,7 +9,9 @@ using namespace sdsl;
 
 class PAM {
 
-    
+    size_t g; // nb of colmuns
+    size_t r; // nb of rows
+    sdsl::bit_vector matrix;
 
 public :
     PAM(std::vector<std::string> filenames, std::vector<uint64_t> union_hashes); //build from archive
