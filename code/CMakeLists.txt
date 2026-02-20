@@ -23,7 +23,6 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(sdsl)
 
 
-
 # move all the binaries and libraries into dedicated directories
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)

@@ -1,4 +1,4 @@
-#include "union_hashes.cpp"
+#include "union_hashes.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -18,7 +18,7 @@ std::vector<uint64_t> merge_all(const std::vector<std::string>& filenames) {
     for (const auto& name : filenames) {
         // 1st step : read JSON file -> should be upgraded to directly read .msh file
         std::vector<uint64_t> vi;
-        vi.reserve(name.size())
+        vi.reserve(name.size());
         std::ifstream in(name);
         if (!in) {
             throw std::runtime_error("Cannot open file: " + name);
@@ -31,11 +31,11 @@ std::vector<uint64_t> merge_all(const std::vector<std::string>& filenames) {
             throw std::runtime_error("JSON is not an array in: " + name);
         }
 
-        vi.emplace_back(j.get<std::vector<uint64_t>>());
+        vi = j.get<std::vector<uint64_t>>();
 
         //2nd step : merge with precedent
 
-        new_union.clear()
+        new_union.clear();
         std::set_union(union_hashes.cbegin(), union_hashes.cend(),
                         vi.cbegin(), vi.cend(),
                         std::back_inserter(new_union));
@@ -44,8 +44,8 @@ std::vector<uint64_t> merge_all(const std::vector<std::string>& filenames) {
     return new_union;
 }
 
-size_t log(int n){//gives the number of bits in the representation of an integer
-    size_t l = 0
+size_t log(uint64_t n){//gives the number of bits in the representation of an integer
+    size_t l = 0;
     while (n != 0){
         l++;
         n >>= 1;
@@ -58,22 +58,22 @@ sdsl::bit_vector elias_fano_encode(const std::vector<uint64_t>& input) {
     if (input.empty())
         return {};
 
-    const size_t n = input.size();
+    const uint64_t n = input.size();
     const uint64_t max_value = input.back();
 
     const size_t U = log(n); // number of upper bits
-    const size_t L = log(m) - u; // number od lower bits
+    const size_t L = log(max_value) - U; // number od lower bits
     const size_t upper_size = (1ULL << U) + n;
     const size_t lower_size = L*n;
 
-    // Mask to extract lower L bits
+    // mask to extract lower L bits
     uint64_t lower_mask = (L == 64) ? ~0ULL : ((1ULL << L) - 1ULL);
 
     sdsl::bit_vector bv(upper_size + lower_size, 0);
 
     for (size_t i = 0; i < n; ++i) {
         // encode upper bits
-        size_t pos = upper_values[i] + i;
+        size_t pos = (input[i] >> L) + i;
         bv[pos] = 1;
 
         //encode lower bits (hard encode)
@@ -88,7 +88,42 @@ sdsl::bit_vector elias_fano_encode(const std::vector<uint64_t>& input) {
 }
 
 Union::Union(const std::vector<std::string>& filenames) {
-    std::vector<uint64_t> sorted_union = sorted_union_from_files(filenames);
-    elias_fano_representation = elias_fano_encoding(sorted_union);
+    std::vector<uint64_t> sorted_union = merge_all(filenames);
+    n = sorted_union.size();
+    m = sorted_union.back();
+    elias_fano_representation = elias_fano_encode(sorted_union);
     
+}
+
+std::vector<uint64_t> Union::decompress_union() {
+    std::vector<uint64_t> result;
+    result.reserve(n);
+    const size_t U = log(n);
+    const size_t upper_bits_size = (1 << U) + n;
+
+    const size_t nb_lower_bits = log(m) - U;
+
+    uint64_t zeros_count = 0;
+    uint64_t position_in_upper_bits = 0;
+
+    for (uint64_t i = 0; i < n; i ++){
+        //could probably be improved to limit cache misses because we constantly jump from one part of the array to another
+        uint64_t value = 0;
+        //decode lower bits
+        for (uint64_t b = 0; b < nb_lower_bits; ++b) {
+            if (elias_fano_representation[i * nb_lower_bits + b + upper_bits_size]) {
+                value |= (1ULL << b);
+            }
+        }
+
+        //decode upper bits
+        while (!elias_fano_representation[position_in_upper_bits]) { //reading ones : increment the value
+            zeros_count ++;
+            position_in_upper_bits++;
+        }
+        value |= (zeros_count << (nb_lower_bits)); //found a 1
+        result.push_back(value);
+    }
+    return result;
+
 }

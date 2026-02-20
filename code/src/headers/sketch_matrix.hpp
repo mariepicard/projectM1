@@ -14,6 +14,7 @@ class PAM {
     sdsl::bit_vector matrix;
 
 public :
+    PAM() {};
     PAM(std::vector<std::string> filenames, std::vector<uint64_t> union_hashes); //build from archive
     PAM(std::string filename); //load from disk
 

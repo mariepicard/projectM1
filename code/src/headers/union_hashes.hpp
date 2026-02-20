@@ -6,6 +6,8 @@
 #include <sdsl/bit_vectors.hpp>
 
 class Union {
+    uint64_t n; //nb of elements in the union
+    uint64_t m; //max elt
     sdsl::bit_vector elias_fano_representation;
 
 public :
