@@ -11,6 +11,7 @@
 
 
 std::vector<uint64_t> merge_all(const std::vector<std::string>& filenames) {
+    std::cout << "Compute union" << std::endl;
     std::vector<uint64_t> union_hashes;
     std::vector<uint64_t> new_union;
     for (const auto& name : filenames) {
@@ -18,23 +19,16 @@ std::vector<uint64_t> merge_all(const std::vector<std::string>& filenames) {
         std::vector<uint64_t> vi = get_hashes_from_JSON(name);
 
         //2nd step : merge with precedent
-
         new_union.clear();
         std::set_union(union_hashes.cbegin(), union_hashes.cend(),
                         vi.cbegin(), vi.cend(),
                         std::back_inserter(new_union));
         union_hashes = new_union;
     }
-    return new_union;
-}
-
-size_t log(uint64_t n){//gives the number of bits in the representation of an integer
-    size_t l = 0;
-    while (n != 0){
-        l++;
-        n >>= 1;
+    for (auto nb : new_union) {
+        std::cout << nb << std::endl;
     }
-    return l;
+    return new_union;
 }
 
 sdsl::bit_vector elias_fano_encode(const std::vector<uint64_t>& input) {
@@ -62,30 +56,42 @@ sdsl::bit_vector elias_fano_encode(const std::vector<uint64_t>& input) {
 
         //encode lower bits (hard encode)
         uint64_t lower = input[i] & lower_mask;
-
         for (size_t b = 0; b < L; ++b) {
-            bv[upper_size + i * L + b] = (lower >> b) & 1ULL;
+            if ((lower >> b) & 1ULL)
+                bv[upper_size + i * L + L - 1 - b] = 1;
         }
     }
-
     return bv;
 }
 
+
+void test_union_hashes() {
+    std::cout << "[TEST]" << std::endl;
+    std::vector<uint64_t> test_vector = {1, 3, 7, 8, 9, 17};
+    sdsl::bit_vector ef_encoding = elias_fano_encode(test_vector);
+    std::cout << ef_encoding << std::endl;
+}
+
 Union::Union(const std::vector<std::string>& filenames) {
+    test_union_hashes();
     std::vector<uint64_t> sorted_union = merge_all(filenames);
     n = sorted_union.size();
     m = sorted_union.back();
+    std::cout << "n : " << n << std::endl;
+    std::cout << "m : " << m << std::endl;
     elias_fano_representation = elias_fano_encode(sorted_union);
+    std::cout << elias_fano_representation << std::endl;
     
 }
 
 std::vector<uint64_t> Union::decompress_union() {
+    std::cout << "Reconstructing union" << std::endl;
     std::vector<uint64_t> result;
     result.reserve(n);
     const size_t U = log(n);
     const size_t upper_bits_size = (1 << U) + n;
 
-    const size_t nb_lower_bits = log(m) - U;
+    const size_t L = log(m) - U;
 
     uint64_t zeros_count = 0;
     uint64_t position_in_upper_bits = 0;
@@ -94,8 +100,8 @@ std::vector<uint64_t> Union::decompress_union() {
         //could probably be improved to limit cache misses because we constantly jump from one part of the array to another
         uint64_t value = 0;
         //decode lower bits
-        for (uint64_t b = 0; b < nb_lower_bits; ++b) {
-            if (elias_fano_representation[i * nb_lower_bits + b + upper_bits_size]) {
+        for (uint64_t b = 0; b < L; ++b) {
+            if (elias_fano_representation[i * L + L - b - 1 + upper_bits_size]) {
                 value |= (1ULL << b);
             }
         }
@@ -105,8 +111,10 @@ std::vector<uint64_t> Union::decompress_union() {
             zeros_count ++;
             position_in_upper_bits++;
         }
-        value |= (zeros_count << (nb_lower_bits)); //found a 1
+        position_in_upper_bits ++;
+        value |= (zeros_count << L); //found a 1
         result.push_back(value);
+        std::cout << value << std::endl;
     }
     return result;
 
