@@ -3,6 +3,7 @@ add_executable(posc
     tools.cpp
     sketch_matrix.cpp
     union_hashes.cpp
+    utilities.cpp
 )
 
 target_include_directories(posc

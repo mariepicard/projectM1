@@ -5,6 +5,9 @@
 #include <string>
 #include <sdsl/bit_vectors.hpp>
 
+#include "utilities.hpp"
+
+
 using namespace sdsl;
 
 class PAM {

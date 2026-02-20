@@ -8,8 +8,6 @@
 #include <string>
 #include <stdexcept>
 #include <fstream>
-#include <nlohmann/json.hpp>
-
 
 
 std::vector<uint64_t> merge_all(const std::vector<std::string>& filenames) {
@@ -17,21 +15,7 @@ std::vector<uint64_t> merge_all(const std::vector<std::string>& filenames) {
     std::vector<uint64_t> new_union;
     for (const auto& name : filenames) {
         // 1st step : read JSON file -> should be upgraded to directly read .msh file
-        std::vector<uint64_t> vi;
-        vi.reserve(name.size());
-        std::ifstream in(name);
-        if (!in) {
-            throw std::runtime_error("Cannot open file: " + name);
-        }
-
-        nlohmann::json j;
-        in >> j;
-
-        if (!j.is_array()) {
-            throw std::runtime_error("JSON is not an array in: " + name);
-        }
-
-        vi = j.get<std::vector<uint64_t>>();
+        std::vector<uint64_t> vi = get_hashes_from_JSON(name);
 
         //2nd step : merge with precedent
 

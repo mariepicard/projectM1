@@ -1,5 +1,4 @@
 #include "sketch_matrix.hpp"
-#include <nlohmann/json.hpp>
 
 PAM::PAM(std::vector<std::string> filenames, std::vector<uint64_t> union_hashes){
     g = filenames.size();
@@ -10,21 +9,7 @@ PAM::PAM(std::vector<std::string> filenames, std::vector<uint64_t> union_hashes)
 
     for (const auto& name : filenames) {
         // 1st step : read JSON file -> should be upgraded to directly read .msh file
-        std::vector<uint64_t> vi;
-        vi.reserve(name.size());
-        std::ifstream in(name);
-        if (!in) {
-            throw std::runtime_error("Cannot open file: " + name);
-        }
-
-        nlohmann::json j;
-        in >> j;
-
-        if (!j.is_array()) {
-            throw std::runtime_error("JSON is not an array in: " + name);
-        }
-
-        vi = j.get<std::vector<uint64_t>>();
+        std::vector<uint64_t> vi = get_hashes_from_JSON(name);
 
         size_t row_i = 0;
         for (size_t row_nb = 0; row_nb < union_hashes.size(); row_nb++) {
