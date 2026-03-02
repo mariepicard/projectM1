@@ -16,6 +16,7 @@ class Union {
 public :
     Union(const std::vector<std::string>& filenames); //build from different sketches OK
     Union(std::string filename); //load from disk
+    Union(std::vector<uint64_t> union_hashes); //for debugging purposes
 
     void dump(std::string filename); //write to disk
 

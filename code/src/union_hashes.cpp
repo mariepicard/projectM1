@@ -11,7 +11,7 @@
 
 
 std::vector<uint64_t> merge_all(const std::vector<std::string>& filenames) {
-    std::cout << "Compute union" << std::endl;
+    //std::cout << "Compute union" << std::endl;
     std::vector<uint64_t> union_hashes;
     std::vector<uint64_t> new_union;
     for (const auto& name : filenames) {
@@ -26,7 +26,7 @@ std::vector<uint64_t> merge_all(const std::vector<std::string>& filenames) {
         union_hashes = new_union;
     }
     for (auto nb : new_union) {
-        std::cout << nb << std::endl;
+        //std::cout << nb << std::endl;
     }
     return new_union;
 }
@@ -66,10 +66,10 @@ sdsl::bit_vector elias_fano_encode(const std::vector<uint64_t>& input) {
 
 
 void test_union_hashes() {
-    std::cout << "[TEST]" << std::endl;
+    //std::cout << "[TEST]" << std::endl;
     std::vector<uint64_t> test_vector = {1, 3, 7, 8, 9, 17};
     sdsl::bit_vector ef_encoding = elias_fano_encode(test_vector);
-    std::cout << ef_encoding << std::endl;
+    //std::cout << ef_encoding << std::endl;
 }
 
 Union::Union(const std::vector<std::string>& filenames) {
@@ -77,15 +77,15 @@ Union::Union(const std::vector<std::string>& filenames) {
     std::vector<uint64_t> sorted_union = merge_all(filenames);
     n = sorted_union.size();
     m = sorted_union.back();
-    std::cout << "n : " << n << std::endl;
-    std::cout << "m : " << m << std::endl;
+    //std::cout << "n : " << n << std::endl;
+    //std::cout << "m : " << m << std::endl;
     elias_fano_representation = elias_fano_encode(sorted_union);
-    std::cout << elias_fano_representation << std::endl;
+    //std::cout << elias_fano_representation << std::endl;
     
 }
 
 std::vector<uint64_t> Union::decompress_union() {
-    std::cout << "Reconstructing union" << std::endl;
+    //std::cout << "Reconstructing union" << std::endl;
     std::vector<uint64_t> result;
     result.reserve(n);
     const size_t U = log(n);
@@ -114,8 +114,11 @@ std::vector<uint64_t> Union::decompress_union() {
         position_in_upper_bits ++;
         value |= (zeros_count << L); //found a 1
         result.push_back(value);
-        std::cout << value << std::endl;
+        //std::cout << value << std::endl;
     }
     return result;
+}
 
+void Union::dump(std::string filename){
+    sdsl::store_to_file(elias_fano_representation, filename);
 }

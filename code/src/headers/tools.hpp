@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <filesystem>
 #include "sketch_matrix.hpp"
 #include "union_hashes.hpp"
 

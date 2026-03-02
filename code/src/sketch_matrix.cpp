@@ -14,7 +14,7 @@ PAM::PAM(std::vector<std::string> filenames, std::vector<uint64_t> union_hashes)
         size_t row_i = 0;
         for (size_t row_nb = 0; row_nb < union_hashes.size(); row_nb++) {
             if (vi[row_i] == union_hashes[row_nb]) {
-                matrix[r*column_nb + row_nb] = 1;
+                matrix[r * column_nb + row_nb] = 1;
                 row_i ++;
             }
         }
@@ -24,4 +24,10 @@ PAM::PAM(std::vector<std::string> filenames, std::vector<uint64_t> union_hashes)
 
 void PAM::dump(std::string filename){
     sdsl::store_to_file(matrix, filename);
+}
+
+std::ostream &operator<<(std::ostream &out, const PAM& pam) {
+    out << pam.g << " columns" << std::endl;
+    out << pam.r << " rows" << std::endl;
+    out << pam.matrix << std::endl;
 }

@@ -7,9 +7,6 @@
 
 #include "utilities.hpp"
 
-
-using namespace sdsl;
-
 class PAM {
 
     size_t g; // nb of colmuns
@@ -26,6 +23,8 @@ public :
     std::vector<bool> get_column(uint i);//to retrieve sketch
 
     std::vector<std::vector<bool>> get_rows(std::vector<uint> rows); //rows from intersection
+
+    friend std::ostream &operator << (std::ostream &out, const PAM& pam); //display matrix
     
 };
 

@@ -30,5 +30,6 @@ int main(int argc, char** argv){
 
 
     Mash compacted_archive = Mash(filenames);
+    compacted_archive.dump("./test_archive");
     return 0;
 }
