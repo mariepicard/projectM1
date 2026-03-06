@@ -13,7 +13,8 @@
 class Mash {
     PAM matrix;
     Union union_hashes;
-    std::map<std::string, uint> sketch_names;
+    //std::map<std::string, uint> sketch_names;
+    std::vector<std::string> filenames_;
     //add correspondance table between names of files and indices ?
 
 public :

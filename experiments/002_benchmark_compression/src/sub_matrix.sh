@@ -19,7 +19,8 @@ archive="$1"
 nb_genomes="$2"
 s="$3"
 extracted_archive=""
-outdir="$outdir/s${s}_g${nb_genomes}"
+archive_basename=$(basename "$archive" | cut -d. -f1)
+outdir="$outdir/${archive_basename}_s${s}_g${nb_genomes}"
 
 if [[ ! -d "$outdir" ]]; then
 	mkdir -p "$outdir"

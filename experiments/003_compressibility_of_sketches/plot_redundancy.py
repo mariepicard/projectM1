@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import subprocess
 
 
-lst_s = [10**k for k in range(5)]
-lst_g = [10**k for k in range(4)]
+lst_s = [10**k for k in range(4)]
+lst_g = [10**k for k in range(3)]
 
 ratios_lst = np.zeros((len(lst_g), len(lst_s)))
 for i in range(len(lst_g)):
